@@ -26,7 +26,7 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const isActive = (path: string) => currentPath === path;
+  const isActive = (path) => currentPath === path;
   const isCollapsed = state === "collapsed";
 
   return (

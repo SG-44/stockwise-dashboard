@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { InventoryTable, InventoryItem } from "@/components/InventoryTable";
+import { InventoryTable } from "@/components/InventoryTable";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-const mockItems: InventoryItem[] = [
+const mockItems = [
   {
     id: "1",
     name: "Wireless Mouse",
@@ -60,7 +60,7 @@ const mockItems: InventoryItem[] = [
 ];
 
 const Inventory = () => {
-  const [items, setItems] = useState<InventoryItem[]>(mockItems);
+  const [items, setItems] = useState(mockItems);
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -69,11 +69,11 @@ const Inventory = () => {
     item.sku.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleEdit = (item: InventoryItem) => {
+  const handleEdit = (item) => {
     toast.info(`Editing ${item.name}`);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id) => {
     setItems(items.filter((item) => item.id !== id));
     toast.success("Item deleted successfully");
   };

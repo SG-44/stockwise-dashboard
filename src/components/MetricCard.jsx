@@ -1,18 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
 
-interface MetricCardProps {
-  title: string;
-  value: string | number;
-  icon: LucideIcon;
-  trend?: {
-    value: number;
-    isPositive: boolean;
-  };
-  variant?: "default" | "success" | "warning" | "destructive";
-}
-
-export const MetricCard = ({ title, value, icon: Icon, trend, variant = "default" }: MetricCardProps) => {
+export const MetricCard = ({ title, value, icon: Icon, trend, variant = "default" }) => {
   const variantClasses = {
     default: "text-primary",
     success: "text-success",

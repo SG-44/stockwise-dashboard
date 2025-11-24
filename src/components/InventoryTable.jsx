@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,24 +16,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 
-export interface InventoryItem {
-  id: string;
-  name: string;
-  sku: string;
-  category: string;
-  quantity: number;
-  price: number;
-  status: "in-stock" | "low-stock" | "out-of-stock";
-}
-
-interface InventoryTableProps {
-  items: InventoryItem[];
-  onEdit: (item: InventoryItem) => void;
-  onDelete: (id: string) => void;
-}
-
-export const InventoryTable = ({ items, onEdit, onDelete }: InventoryTableProps) => {
-  const getStatusBadge = (status: InventoryItem["status"]) => {
+export const InventoryTable = ({ items, onEdit, onDelete }) => {
+  const getStatusBadge = (status) => {
     const variants = {
       "in-stock": "bg-success text-success-foreground",
       "low-stock": "bg-warning text-warning-foreground",
