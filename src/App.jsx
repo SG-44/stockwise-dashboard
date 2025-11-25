@@ -23,9 +23,11 @@ const App = () => (
           <div className="flex min-h-screen w-full">
             <AppSidebar />
             <div className="flex-1 flex flex-col">
-              <header className="h-14 border-b bg-card flex items-center px-4 sticky top-0 z-10">
+              <header className="h-12 m-8 p-8 border-b bg-card flex items-center top-2 z-10">
                 <SidebarTrigger />
-                <div className="ml-4 text-lg font-semibold">Inventory Management System</div>
+                <div className="pl-4 text-2xl font-bold">
+                  Inventory Management System
+                </div>
               </header>
               <main className="flex-1 p-6 bg-background">
                 <Routes>

@@ -3,21 +3,11 @@ import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InventoryTable } from "@/components/InventoryTable";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger}
+from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue}
+from "@/components/ui/select";
 import { toast } from "sonner";
 
 const mockItems = [
@@ -64,9 +54,10 @@ const Inventory = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const filteredItems = items.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.sku.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredItems = items.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.sku.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleEdit = (item) => {
@@ -83,7 +74,9 @@ const Inventory = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Inventory</h1>
-          <p className="text-muted-foreground mt-1">Manage your inventory items</p>
+          <p className="text-muted-foreground mt-1">
+            Manage your inventory items
+          </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
@@ -125,7 +118,12 @@ const Inventory = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
-                  <Input id="price" type="number" placeholder="0.00" step="0.01" />
+                  <Input
+                    id="price"
+                    type="number"
+                    placeholder="0.00"
+                    step="0.01"
+                  />
                 </div>
               </div>
             </div>
@@ -133,10 +131,12 @@ const Inventory = () => {
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => {
-                toast.success("Item added successfully");
-                setDialogOpen(false);
-              }}>
+              <Button
+                onClick={() => {
+                  toast.success("Item added successfully");
+                  setDialogOpen(false);
+                }}
+              >
                 Add Item
               </Button>
             </div>
@@ -146,17 +146,21 @@ const Inventory = () => {
 
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search items..."
+            placeholder="   Search items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-9 ml-9"
           />
         </div>
       </div>
 
-      <InventoryTable items={filteredItems} onEdit={handleEdit} onDelete={handleDelete} />
+      <InventoryTable
+        items={filteredItems}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
     </div>
   );
 };

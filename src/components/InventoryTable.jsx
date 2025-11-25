@@ -19,9 +19,9 @@ import { Badge } from "@/components/ui/badge";
 export const InventoryTable = ({ items, onEdit, onDelete }) => {
   const getStatusBadge = (status) => {
     const variants = {
-      "in-stock": "bg-success text-success-foreground",
-      "low-stock": "bg-warning text-warning-foreground",
-      "out-of-stock": "bg-destructive text-destructive-foreground",
+      "in-stock": "success",
+      "low-stock": "warning",
+      "out-of-stock": "destructive",
     };
 
     const labels = {
@@ -30,11 +30,7 @@ export const InventoryTable = ({ items, onEdit, onDelete }) => {
       "out-of-stock": "Out of Stock",
     };
 
-    return (
-      <Badge className={variants[status]} variant="secondary">
-        {labels[status]}
-      </Badge>
-    );
+    return <Badge variant={variants[status]}>{labels[status]}</Badge>;
   };
 
   return (
@@ -55,10 +51,14 @@ export const InventoryTable = ({ items, onEdit, onDelete }) => {
           {items.map((item) => (
             <TableRow key={item.id}>
               <TableCell className="font-medium">{item.name}</TableCell>
-              <TableCell className="text-muted-foreground">{item.sku}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {item.sku}
+              </TableCell>
               <TableCell>{item.category}</TableCell>
               <TableCell className="text-right">{item.quantity}</TableCell>
-              <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+              <TableCell className="text-right">
+                ${item.price.toFixed(2)}
+              </TableCell>
               <TableCell>{getStatusBadge(item.status)}</TableCell>
               <TableCell>
                 <DropdownMenu>
@@ -72,7 +72,7 @@ export const InventoryTable = ({ items, onEdit, onDelete }) => {
                       <Pencil className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => onDelete(item.id)}
                       className="text-destructive"
                     >
