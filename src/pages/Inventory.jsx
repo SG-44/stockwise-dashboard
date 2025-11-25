@@ -3,11 +3,21 @@ import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InventoryTable } from "@/components/InventoryTable";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger}
-from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue}
-from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 const mockItems = [
@@ -61,6 +71,7 @@ const Inventory = () => {
     price: "",
   });
   const [errors, setErrors] = useState({});
+  const [editingItemId, setEditingItemId] = useState(null);
 
   const filteredItems = items.filter(
     (item) =>
@@ -69,7 +80,16 @@ const Inventory = () => {
   );
 
   const handleEdit = (item) => {
-    toast.info(`Editing ${item.name}`);
+    // Prefill form with item values so user can edit
+    setFormData({
+      name: item.name || "",
+      sku: item.sku || "",
+      category: item.category || "",
+      quantity: String(item.quantity ?? ""),
+      price: String(item.price ?? ""),
+    });
+    setEditingItemId(item.id);
+    setDialogOpen(true);
   };
 
   const handleDelete = (id) => {
@@ -115,28 +135,30 @@ const Inventory = () => {
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    
+    if (e && e.preventDefault) e.preventDefault();
+
     if (!validateForm()) {
+      toast.error("Please fix validation errors");
       return;
     }
 
     const quantity = Number(formData.quantity);
-    const status = quantity === 0 
-      ? "out-of-stock" 
-      : quantity < 10 
-      ? "low-stock" 
-      : "in-stock";
+    const status =
+      quantity === 0
+        ? "out-of-stock"
+        : quantity < 10
+        ? "low-stock"
+        : "in-stock";
 
-    const newItem = {
-      id: Date.now().toString(),
+    const preparedItem = {
+      id: editingItemId ? editingItemId : Date.now().toString(),
       name: formData.name.trim(),
       sku: formData.sku.trim(),
       category: formData.category,
@@ -145,16 +167,21 @@ const Inventory = () => {
       status,
     };
 
-    setItems([newItem, ...items]);
-    toast.success("Item added successfully");
-    setFormData({
-      name: "",
-      sku: "",
-      category: "",
-      quantity: "",
-      price: "",
-    });
+    if (editingItemId) {
+      // update existing
+      setItems((prev) =>
+        prev.map((it) => (it.id === editingItemId ? preparedItem : it))
+      );
+      toast.success("Item updated successfully");
+    } else {
+      // add new
+      setItems((prev) => [preparedItem, ...prev]);
+      toast.success("Item added successfully");
+    }
+
+    setFormData({ name: "", sku: "", category: "", quantity: "", price: "" });
     setErrors({});
+    setEditingItemId(null);
     setDialogOpen(false);
   };
 
@@ -169,27 +196,56 @@ const Inventory = () => {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button
+              onClick={() => {
+                // prepare for adding new item
+                setFormData({
+                  name: "",
+                  sku: "",
+                  category: "",
+                  quantity: "",
+                  price: "",
+                });
+                setEditingItemId(null);
+              }}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add Item
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Item</DialogTitle>
+              <DialogTitle>
+                {editingItemId ? "Edit Item" : "Add New Item"}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" placeholder="Item name" />
+                <Input
+                  id="name"
+                  placeholder="Item name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="sku">SKU</Label>
-                <Input id="sku" placeholder="SKU-001" />
+                <Input
+                  id="sku"
+                  placeholder="SKU-001"
+                  value={formData.sku}
+                  onChange={(e) => handleInputChange("sku", e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) =>
+                    handleInputChange("category", value)
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -203,23 +259,41 @@ const Inventory = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="quantity">Quantity</Label>
-                  <Input id="quantity" type="number" placeholder="0" />
+                  <Input
+                    id="quantity"
+                    type="number"
+                    placeholder="0"
+                    value={formData.quantity}
+                    onChange={(e) =>
+                      handleInputChange("quantity", e.target.value)
+                    }
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
-                  <Input id="price" type="number" placeholder="0.00" step="0.01" />
+                  <Input
+                    id="price"
+                    type="number"
+                    placeholder="0.00"
+                    step="0.01"
+                    value={formData.price}
+                    onChange={(e) => handleInputChange("price", e.target.value)}
+                  />
                 </div>
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setDialogOpen(false);
+                  setEditingItemId(null);
+                }}
+              >
                 Cancel
               </Button>
-              <Button onClick={() => {
-                toast.success("Item added successfully");
-                setDialogOpen(false);
-              }}>
-                Add Item
+              <Button onClick={handleSubmit}>
+                {editingItemId ? "Save Changes" : "Add Item"}
               </Button>
             </div>
           </DialogContent>
@@ -227,13 +301,13 @@ const Inventory = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative flex-1 max-w-sm py-4">
+          <Search className="absolute top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="   Search items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 ml-9"
+            className="pl-9"
           />
         </div>
       </div>
