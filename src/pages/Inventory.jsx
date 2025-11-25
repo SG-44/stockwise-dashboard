@@ -19,6 +19,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const itemSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  sku: z.string().trim().min(1, "SKU is required").max(50, "SKU must be less than 50 characters"),
+  category: z.string().min(1, "Category is required"),
+  quantity: z.coerce.number().min(0, "Quantity must be at least 0").int("Quantity must be a whole number"),
+  price: z.coerce.number().min(0.01, "Price must be at least 0.01"),
+});
 
 const mockItems = [
   {
@@ -64,6 +75,17 @@ const Inventory = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  const { control, handleSubmit, formState: { errors }, reset } = useForm({
+    resolver: zodResolver(itemSchema),
+    defaultValues: {
+      name: "",
+      sku: "",
+      category: "",
+      quantity: 0,
+      price: 0,
+    },
+  });
+
   const filteredItems = items.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.sku.toLowerCase().includes(searchQuery.toLowerCase())
@@ -76,6 +98,25 @@ const Inventory = () => {
   const handleDelete = (id) => {
     setItems(items.filter((item) => item.id !== id));
     toast.success("Item deleted successfully");
+  };
+
+  const onSubmit = (data) => {
+    const status = data.quantity === 0 
+      ? "out-of-stock" 
+      : data.quantity < 10 
+      ? "low-stock" 
+      : "in-stock";
+
+    const newItem = {
+      id: Date.now().toString(),
+      ...data,
+      status,
+    };
+
+    setItems([newItem, ...items]);
+    toast.success("Item added successfully");
+    reset();
+    setDialogOpen(false);
   };
 
   return (
@@ -96,50 +137,94 @@ const Inventory = () => {
             <DialogHeader>
               <DialogTitle>Add New Item</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" placeholder="Item name" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="sku">SKU</Label>
-                <Input id="sku" placeholder="SKU-001" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="electronics">Electronics</SelectItem>
-                    <SelectItem value="accessories">Accessories</SelectItem>
-                    <SelectItem value="furniture">Furniture</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="quantity">Quantity</Label>
-                  <Input id="quantity" type="number" placeholder="0" />
+                  <Label htmlFor="name">Name</Label>
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => (
+                      <Input {...field} id="name" placeholder="Item name" />
+                    )}
+                  />
+                  {errors.name && (
+                    <p className="text-sm text-destructive">{errors.name.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price</Label>
-                  <Input id="price" type="number" placeholder="0.00" step="0.01" />
+                  <Label htmlFor="sku">SKU</Label>
+                  <Controller
+                    name="sku"
+                    control={control}
+                    render={({ field }) => (
+                      <Input {...field} id="sku" placeholder="SKU-001" />
+                    )}
+                  />
+                  {errors.sku && (
+                    <p className="text-sm text-destructive">{errors.sku.message}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category</Label>
+                  <Controller
+                    name="category"
+                    control={control}
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Electronics">Electronics</SelectItem>
+                          <SelectItem value="Accessories">Accessories</SelectItem>
+                          <SelectItem value="Furniture">Furniture</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.category && (
+                    <p className="text-sm text-destructive">{errors.category.message}</p>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="quantity">Quantity</Label>
+                    <Controller
+                      name="quantity"
+                      control={control}
+                      render={({ field }) => (
+                        <Input {...field} id="quantity" type="number" placeholder="0" />
+                      )}
+                    />
+                    {errors.quantity && (
+                      <p className="text-sm text-destructive">{errors.quantity.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Price</Label>
+                    <Controller
+                      name="price"
+                      control={control}
+                      render={({ field }) => (
+                        <Input {...field} id="price" type="number" placeholder="0.00" step="0.01" />
+                      )}
+                    />
+                    {errors.price && (
+                      <p className="text-sm text-destructive">{errors.price.message}</p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => {
-                toast.success("Item added successfully");
-                setDialogOpen(false);
-              }}>
-                Add Item
-              </Button>
-            </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Add Item
+                </Button>
+              </div>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
