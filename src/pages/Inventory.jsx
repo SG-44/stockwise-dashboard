@@ -19,17 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-
-const itemSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  sku: z.string().trim().min(1, "SKU is required").max(50, "SKU must be less than 50 characters"),
-  category: z.string().min(1, "Category is required"),
-  quantity: z.coerce.number().min(0, "Quantity must be at least 0").int("Quantity must be a whole number"),
-  price: z.coerce.number().min(0.01, "Price must be at least 0.01"),
-});
 
 const mockItems = [
   {
@@ -74,17 +63,14 @@ const Inventory = () => {
   const [items, setItems] = useState(mockItems);
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  const { control, handleSubmit, formState: { errors }, reset } = useForm({
-    resolver: zodResolver(itemSchema),
-    defaultValues: {
-      name: "",
-      sku: "",
-      category: "",
-      quantity: 0,
-      price: 0,
-    },
+  const [formData, setFormData] = useState({
+    name: "",
+    sku: "",
+    category: "",
+    quantity: "",
+    price: "",
   });
+  const [errors, setErrors] = useState({});
 
   const filteredItems = items.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -100,22 +86,84 @@ const Inventory = () => {
     toast.success("Item deleted successfully");
   };
 
-  const onSubmit = (data) => {
-    const status = data.quantity === 0 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    } else if (formData.name.length > 100) {
+      newErrors.name = "Name must be less than 100 characters";
+    }
+
+    if (!formData.sku.trim()) {
+      newErrors.sku = "SKU is required";
+    } else if (formData.sku.length > 50) {
+      newErrors.sku = "SKU must be less than 50 characters";
+    }
+
+    if (!formData.category) {
+      newErrors.category = "Category is required";
+    }
+
+    const quantity = Number(formData.quantity);
+    if (formData.quantity === "" || isNaN(quantity)) {
+      newErrors.quantity = "Quantity is required";
+    } else if (quantity < 0 || !Number.isInteger(quantity)) {
+      newErrors.quantity = "Quantity must be a positive whole number";
+    }
+
+    const price = Number(formData.price);
+    if (formData.price === "" || isNaN(price)) {
+      newErrors.price = "Price is required";
+    } else if (price < 0.01) {
+      newErrors.price = "Price must be at least 0.01";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    const quantity = Number(formData.quantity);
+    const status = quantity === 0 
       ? "out-of-stock" 
-      : data.quantity < 10 
+      : quantity < 10 
       ? "low-stock" 
       : "in-stock";
 
     const newItem = {
       id: Date.now().toString(),
-      ...data,
+      name: formData.name.trim(),
+      sku: formData.sku.trim(),
+      category: formData.category,
+      quantity: quantity,
+      price: Number(formData.price),
       status,
     };
 
     setItems([newItem, ...items]);
     toast.success("Item added successfully");
-    reset();
+    setFormData({
+      name: "",
+      sku: "",
+      category: "",
+      quantity: "",
+      price: "",
+    });
+    setErrors({});
     setDialogOpen(false);
   };
 
@@ -137,81 +185,77 @@ const Inventory = () => {
             <DialogHeader>
               <DialogTitle>Add New Item</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit}>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
-                  <Controller
-                    name="name"
-                    control={control}
-                    render={({ field }) => (
-                      <Input {...field} id="name" placeholder="Item name" />
-                    )}
+                  <Input 
+                    id="name" 
+                    placeholder="Item name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                   />
                   {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name.message}</p>
+                    <p className="text-sm text-destructive">{errors.name}</p>
                   )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="sku">SKU</Label>
-                  <Controller
-                    name="sku"
-                    control={control}
-                    render={({ field }) => (
-                      <Input {...field} id="sku" placeholder="SKU-001" />
-                    )}
+                  <Input 
+                    id="sku" 
+                    placeholder="SKU-001"
+                    value={formData.sku}
+                    onChange={(e) => handleInputChange("sku", e.target.value)}
                   />
                   {errors.sku && (
-                    <p className="text-sm text-destructive">{errors.sku.message}</p>
+                    <p className="text-sm text-destructive">{errors.sku}</p>
                   )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
-                  <Controller
-                    name="category"
-                    control={control}
-                    render={({ field }) => (
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Electronics">Electronics</SelectItem>
-                          <SelectItem value="Accessories">Accessories</SelectItem>
-                          <SelectItem value="Furniture">Furniture</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
+                  <Select 
+                    value={formData.category}
+                    onValueChange={(value) => handleInputChange("category", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Electronics">Electronics</SelectItem>
+                      <SelectItem value="Accessories">Accessories</SelectItem>
+                      <SelectItem value="Furniture">Furniture</SelectItem>
+                    </SelectContent>
+                  </Select>
                   {errors.category && (
-                    <p className="text-sm text-destructive">{errors.category.message}</p>
+                    <p className="text-sm text-destructive">{errors.category}</p>
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="quantity">Quantity</Label>
-                    <Controller
-                      name="quantity"
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} id="quantity" type="number" placeholder="0" />
-                      )}
+                    <Input 
+                      id="quantity" 
+                      type="number" 
+                      placeholder="0"
+                      value={formData.quantity}
+                      onChange={(e) => handleInputChange("quantity", e.target.value)}
                     />
                     {errors.quantity && (
-                      <p className="text-sm text-destructive">{errors.quantity.message}</p>
+                      <p className="text-sm text-destructive">{errors.quantity}</p>
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="price">Price</Label>
-                    <Controller
-                      name="price"
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} id="price" type="number" placeholder="0.00" step="0.01" />
-                      )}
+                    <Input 
+                      id="price" 
+                      type="number" 
+                      placeholder="0.00" 
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) => handleInputChange("price", e.target.value)}
                     />
                     {errors.price && (
-                      <p className="text-sm text-destructive">{errors.price.message}</p>
+                      <p className="text-sm text-destructive">{errors.price}</p>
                     )}
                   </div>
                 </div>
