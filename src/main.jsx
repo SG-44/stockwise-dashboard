@@ -14,13 +14,13 @@ if (!rootEl) {
   temp.id = ROOT_ID;
   document.body.appendChild(temp);
   createRoot(temp).render(
-    <BrowserRouter basename="/inventory-app"> {/* add your repo name here */}
+    <BrowserRouter basename="/stockwise-dashboard">
       <App />
     </BrowserRouter>
   );
 } else {
   createRoot(rootEl).render(
-    <BrowserRouter basename="/inventory-app"> {/* add your repo name here */}
+    <BrowserRouter basename="/stockwise-dashboard">
       <App />
     </BrowserRouter>
   );
