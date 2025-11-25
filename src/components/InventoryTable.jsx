@@ -31,7 +31,7 @@ export const InventoryTable = ({ items, onEdit, onDelete }) => {
     };
 
     return (
-      <Badge className={variants[status]} variant="secondary">
+      <Badge variant="secondary">
         {labels[status]}
       </Badge>
     );
