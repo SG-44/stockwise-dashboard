@@ -186,137 +186,143 @@ const Inventory = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Inventory</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your inventory items
-          </p>
-        </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button
-              onClick={() => {
-                // prepare for adding new item
-                setFormData({
-                  name: "",
-                  sku: "",
-                  category: "",
-                  quantity: "",
-                  price: "",
-                });
-                setEditingItemId(null);
-              }}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add Item
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingItemId ? "Edit Item" : "Add New Item"}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  placeholder="Item name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="sku">SKU</Label>
-                <Input
-                  id="sku"
-                  placeholder="SKU-001"
-                  value={formData.sku}
-                  onChange={(e) => handleInputChange("sku", e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) =>
-                    handleInputChange("category", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="electronics">Electronics</SelectItem>
-                    <SelectItem value="accessories">Accessories</SelectItem>
-                    <SelectItem value="furniture">Furniture</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="quantity">Quantity</Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    placeholder="0"
-                    value={formData.quantity}
-                    onChange={(e) =>
-                      handleInputChange("quantity", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    placeholder="0.00"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => handleInputChange("price", e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <div className="flex flex-col items-center justify-between">
+        <div className="flex sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
+          <div>
+            <h1 className="text-3xl font-bold">Inventory</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your inventory items
+            </p>
+          </div>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
               <Button
-                variant="outline"
                 onClick={() => {
-                  setDialogOpen(false);
+                  // prepare for adding new item
+                  setFormData({
+                    name: "",
+                    sku: "",
+                    category: "",
+                    quantity: "",
+                    price: "",
+                  });
                   setEditingItemId(null);
                 }}
               >
-                Cancel
+                <Plus className="mr-2 h-4 w-4" />
+                Add Item
               </Button>
-              <Button onClick={handleSubmit}>
-                {editingItemId ? "Save Changes" : "Add Item"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+            </DialogTrigger>
+            <DialogContent className="w-full sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingItemId ? "Edit Item" : "Add New Item"}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4 text-sm sm:text-base">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="Item name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sku">SKU</Label>
+                  <Input
+                    id="sku"
+                    placeholder="SKU-001"
+                    value={formData.sku}
+                    onChange={(e) => handleInputChange("sku", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category</Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) =>
+                      handleInputChange("category", value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="electronics">Electronics</SelectItem>
+                      <SelectItem value="accessories">Accessories</SelectItem>
+                      <SelectItem value="furniture">Furniture</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="quantity">Quantity</Label>
+                    <Input
+                      id="quantity"
+                      type="number"
+                      placeholder="0"
+                      value={formData.quantity}
+                      onChange={(e) =>
+                        handleInputChange("quantity", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Price</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      placeholder="0.00"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) =>
+                        handleInputChange("price", e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setDialogOpen(false);
+                    setEditingItemId(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmit}>
+                  {editingItemId ? "Save Changes" : "Add Item"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
 
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm py-4">
-          <Search className="absolute top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="   Search items..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+        <div className="flex items-center gap-4 w-full">
+          <div className="relative flex-1 py-4">
+            <Search className="absolute top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="   Search items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 w-full sm:max-w-sm"
+            />
+          </div>
+        </div>
+
+        <div className="w-full">
+          <InventoryTable
+            items={filteredItems}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         </div>
       </div>
-
-      <InventoryTable
-        items={filteredItems}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
     </div>
   );
 };
