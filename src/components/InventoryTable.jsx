@@ -19,9 +19,9 @@ import { Badge } from "@/components/ui/badge";
 export const InventoryTable = ({ items, onEdit, onDelete }) => {
   const getStatusBadge = (status) => {
     const variants = {
-      "in-stock": "bg-success text-success-foreground",
-      "low-stock": "bg-warning text-warning-foreground",
-      "out-of-stock": "bg-destructive text-destructive-foreground",
+      "in-stock": "success",
+      "low-stock": "warning",
+      "out-of-stock": "destructive",
     };
 
     const labels = {
@@ -31,7 +31,7 @@ export const InventoryTable = ({ items, onEdit, onDelete }) => {
     };
 
     return (
-      <Badge className={variants[status]} variant="secondary">
+      <Badge variant={variants[status]}>
         {labels[status]}
       </Badge>
     );
