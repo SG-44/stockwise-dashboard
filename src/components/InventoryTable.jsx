@@ -30,7 +30,11 @@ export const InventoryTable = ({ items, onEdit, onDelete }) => {
       "out-of-stock": "Out of Stock",
     };
 
-    return <Badge variant={variants[status]}>{labels[status]}</Badge>;
+    return (
+      <Badge className={variants[status]} variant="secondary">
+        {labels[status]}
+      </Badge>
+    );
   };
 
   return (

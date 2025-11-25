@@ -53,6 +53,14 @@ const Inventory = () => {
   const [items, setItems] = useState(mockItems);
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    sku: "",
+    category: "",
+    quantity: "",
+    price: "",
+  });
+  const [errors, setErrors] = useState({});
 
   const filteredItems = items.filter(
     (item) =>
@@ -67,6 +75,87 @@ const Inventory = () => {
   const handleDelete = (id) => {
     setItems(items.filter((item) => item.id !== id));
     toast.success("Item deleted successfully");
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    } else if (formData.name.length > 100) {
+      newErrors.name = "Name must be less than 100 characters";
+    }
+
+    if (!formData.sku.trim()) {
+      newErrors.sku = "SKU is required";
+    } else if (formData.sku.length > 50) {
+      newErrors.sku = "SKU must be less than 50 characters";
+    }
+
+    if (!formData.category) {
+      newErrors.category = "Category is required";
+    }
+
+    const quantity = Number(formData.quantity);
+    if (formData.quantity === "" || isNaN(quantity)) {
+      newErrors.quantity = "Quantity is required";
+    } else if (quantity < 0 || !Number.isInteger(quantity)) {
+      newErrors.quantity = "Quantity must be a positive whole number";
+    }
+
+    const price = Number(formData.price);
+    if (formData.price === "" || isNaN(price)) {
+      newErrors.price = "Price is required";
+    } else if (price < 0.01) {
+      newErrors.price = "Price must be at least 0.01";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    const quantity = Number(formData.quantity);
+    const status = quantity === 0 
+      ? "out-of-stock" 
+      : quantity < 10 
+      ? "low-stock" 
+      : "in-stock";
+
+    const newItem = {
+      id: Date.now().toString(),
+      name: formData.name.trim(),
+      sku: formData.sku.trim(),
+      category: formData.category,
+      quantity: quantity,
+      price: Number(formData.price),
+      status,
+    };
+
+    setItems([newItem, ...items]);
+    toast.success("Item added successfully");
+    setFormData({
+      name: "",
+      sku: "",
+      category: "",
+      quantity: "",
+      price: "",
+    });
+    setErrors({});
+    setDialogOpen(false);
   };
 
   return (
@@ -118,12 +207,7 @@ const Inventory = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    placeholder="0.00"
-                    step="0.01"
-                  />
+                  <Input id="price" type="number" placeholder="0.00" step="0.01" />
                 </div>
               </div>
             </div>
@@ -131,12 +215,10 @@ const Inventory = () => {
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button
-                onClick={() => {
-                  toast.success("Item added successfully");
-                  setDialogOpen(false);
-                }}
-              >
+              <Button onClick={() => {
+                toast.success("Item added successfully");
+                setDialogOpen(false);
+              }}>
                 Add Item
               </Button>
             </div>
