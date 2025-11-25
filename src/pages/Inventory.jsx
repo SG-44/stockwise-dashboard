@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,7 +60,10 @@ const mockItems = [
 ];
 
 const Inventory = () => {
-  const [items, setItems] = useState(mockItems);
+  const [items, setItems] = useState(() => {
+    const saved = localStorage.getItem("inventoryItems");
+    return saved ? JSON.parse(saved) : mockItems;
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -72,6 +75,10 @@ const Inventory = () => {
   });
   const [errors, setErrors] = useState({});
   const [editingItemId, setEditingItemId] = useState(null);
+
+  useEffect(() => {
+    localStorage.setItem("inventoryItems", JSON.stringify(items));
+  }, [items]);
 
   const filteredItems = items.filter(
     (item) =>
