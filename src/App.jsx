@@ -31,19 +31,10 @@ const App = () => (
               </header>
               <main className="flex-1 p-6 bg-background">
                 <Routes>
-                  <Route path="/stockwise-dashboard/stockwise-dashboard" element={<Dashboard />} />
-                  <Route
-                    path="/stockwise-dashboard/stockwise-dashboard/inventory"
-                    element={<Inventory />}
-                  />
-                  <Route
-                    path="/stockwise-dashboard/stockwise-dashboard/categories"
-                    element={<Categories />}
-                  />
-                  <Route
-                    path="/stockwise-dashboard/stockwise-dashboard/settings"
-                    element={<Settings />}
-                  />
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/categories" element={<Categories />} />
+                  <Route path="/settings" element={<Settings />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="/*" element={<NotFound />} />
                 </Routes>
